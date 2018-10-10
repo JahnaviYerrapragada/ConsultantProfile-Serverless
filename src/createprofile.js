@@ -15,7 +15,7 @@ module.exports.insert = (event, context, callback) => {
     callback(new Error('Couldn\'t submit candidate because of validation errors.'));
     return;
   }
-  submitCandidateP(candidateInfo(fullname, email, experience))
+  insertCandidateP(candidateInfo(fullname, email, experience))
   .then(res => {
     callback(null, {
       statusCode: 200,
@@ -35,7 +35,7 @@ module.exports.insert = (event, context, callback) => {
     })
   });
 };
-const submitCandidateP = candidate => {
+const insertCandidateP = candidate => {
     console.log('Submitting candidate');
     const candidateInfo = {
       TableName: process.env.CANDIDATE_TABLE,
