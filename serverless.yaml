@@ -1,188 +1,77 @@
-service: serverless-application
+service: consultant-profile
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  region: eu-west-1
+  runtime: nodejs4.3
+  stage: dev
   #role:
   versionFunctions: false
+  environment:
+    CONSULTANT_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
 
 custom:
   s3bucketname: Haedlight-CustomerProfile
-  stackName: Headlight-Consultant-Profile
-  stage: dev
-  region: eu-west-1
-  accountId: "343236483212"
-
-
-package:
-  excludeDevDependencies: false
 
 functions:
-  generateimage:
-    handler: lambda/generate-image/index.handler
-    environment:
-      S3BucketName: ${self:custom.s3bucketname}
-      DynamoDBTableName:
-        Ref: DynamoDBTable
-    events:
-      - stream:
-          type: dynamodb
-          batchSize: 10
-          startingPosition: TRIM_HORIZON
-          arn:
-            Fn::GetAtt: [DynamoDBTable, StreamArn]
-  listdynamodb:
-    role: ListDynamoDBRole
-    handler: lambda/list-dynamodb/index.handler
-    environment:
-      DynamoDBTableName:
-        Ref: DynamoDBTable
+  saveCandidateProfile:
+    handler: src/saveprofile.update
+    description: Updating existing candidate profile
     events:
       - http:
-          path: /items
-          method: GET
-  putdynamodb:
-    role: PutDynamoDBRole
-    handler: lambda/put-dynamodb/index.handler
-    environment:
-      DynamoDBTableName:
-        Ref: DynamoDBTable
+          path: update
+          method: post
+  createCandidateProfile:
+    handler: src/createprofile.insert
+    description: Creating new candidate profile
     events:
       - http:
-          path: /items/{id}
-          method: PUT
-  postdynamodb:
-    role: PutDynamoDBRole
-    handler: lambda/post-dynamodb/index.handler
-    environment:
-      DynamoDBTableName:
-        Ref: DynamoDBTable
+          path: insert
+          method: put
+  fetchCandidateProfile:
+    handler: src/fetchprofile.fetch
+    description: Fetching existing candidate profile
     events:
       - http:
-          path: /items/{id}
-          method: POST
+          path: fetch/{id}
+          method: get
+  deleteCandidateProfile:
+    handler: src/deleteprofile.delete
+    description: Deleting candidate profile
+    events:
+      - http:
+          path: delete
+          method: delete
+  listallCandidateProfile:
+    handler: src/listprofile.listall
+    description: All candidate profile
+    events:
+      - http:
+          path: all
+          method: get
 resources:
   Resources:
-    DynamoDBTable:
-      Type: AWS::DynamoDB::Table
+    ConsultantDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      #DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: N
+          -
+            AttributeName: "id"
+            AttributeType: "S"   
         KeySchema:
-          - AttributeName: id
-            KeyType: HASH
+          -
+            AttributeName: "id"
+            KeyType: "HASH"
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_IMAGE
-    GenerateImageRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: GenerateImageRole
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            -
-              Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        ManagedPolicyArns:
-          - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-        Policies:
-          -
-            PolicyName: root
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - dynamodb:*
-                  Resource:
-                    Fn::GetAtt: [DynamoDBTable, StreamArn]
-                - Effect: Allow
-                  Action:
-                    - s3:PutObject
-                  Resource:
-                    Fn::Sub: 'arn:aws:s3:::${self:custom.s3bucketname}/*'
-                - Effect: Allow
-                  Action:
-                    - dynamodb:*
-                  Resource:
-                    Fn::GetAtt: [DynamoDBTable, Arn]
-    ListDynamoDBRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: ListDynamoDBRole
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            -
-              Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action:
-                - dynamodb:*
-        ManagedPolicyArns:
-          - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-        Policies:
-          -
-            PolicyName: root
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - dynamodb:*
-                  Resource:
-                    Fn::GetAtt: [DynamoDBTable, Arn]
-    PublishsnsLambdaPermission:
-        Type: "AWS::Lambda::Permission"
-        Properties:
-          FunctionName:
-            Fn::GetAtt: [GenerateimageLambdaFunction, Arn]
-          Principal: "s3.amazonaws.com"
-          Action: "lambda:InvokeFunction"
-          SourceAccount:
-            Ref: AWS::AccountId
-          SourceArn: "arn:aws:s3:::${self:custom.s3bucketname}"
-    PutDynamoDBRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: PutDynamoDBRole
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            -
-              Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        ManagedPolicyArns:
-          - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-        Policies:
-          -
-            PolicyName: root
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - dynamodb:PutItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:Query
-                    - dynamodb:Scan
-                    - dynamodb:GetItem
-                    - dynamodb:PutItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:DeleteItem
-                  Resource:
-                    Fn::GetAtt: [DynamoDBTable, Arn]
+        TableName: ${self:provider.environment.CONSULTANT_TABLE}

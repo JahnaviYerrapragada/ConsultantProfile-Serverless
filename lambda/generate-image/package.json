@@ -1,6 +1,0 @@
-{
-  "name": "generate-image",
-  "dependencies": {
-    "gm": "^1.23.0"
-  }
-}
