@@ -127,7 +127,7 @@ resources:
                 Service:
                   - lambda.amazonaws.com
               Action:
-                - sts:AssumeRole
+                - dynamodb:*
         ManagedPolicyArns:
           - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
         Policies:
@@ -138,7 +138,7 @@ resources:
               Statement:
                 - Effect: Allow
                   Action:
-                    - dynamodb:Scan
+                    - dynamodb:*
                   Resource:
                     Fn::GetAtt: [DynamoDBTable, Arn]
     PublishsnsLambdaPermission:

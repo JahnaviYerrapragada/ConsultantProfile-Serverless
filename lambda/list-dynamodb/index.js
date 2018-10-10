@@ -16,6 +16,7 @@ exports.handler = (event, context, callback) => {
       statusCode: err ? 500 : 200,
       body: err ? err.stack : "",
     };
+    console.log("Table names are ", data.TableNames);
     callback(null, response);
   });
 }
