@@ -1,9 +1,6 @@
 'use strict';
 
-const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
-
-AWS.config.setPromisesDependency(require('bluebird'));
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
@@ -51,7 +48,6 @@ const submitCandidateP = candidate => {
   const candidateInfo = (fullname, email, experience) => {
     const timestamp = new Date().getTime();
     return {
-      id: uuid.v1(),
       fullname: fullname,
       email: email,
       experience: experience,
