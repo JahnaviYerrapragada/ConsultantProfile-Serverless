@@ -11,3 +11,20 @@ curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
 sudo yum -y install nodejs
 
 sudo yum install gcc-c++ make
+
+
+Execution:
+
+serverless deploy -v
+
+
+
+echo "# ConsultantProfile-Serverless" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/JahnaviYerrapragada/ConsultantProfile-Serverless.git
+git push -u origin master
+
+git remote add origin https://github.com/JahnaviYerrapragada/ConsultantProfile-Serverless.git
+git push -u origin master

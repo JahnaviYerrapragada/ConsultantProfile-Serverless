@@ -101,10 +101,7 @@ resources:
               Statement:
                 - Effect: Allow
                   Action:
-                    - dynamodb:DescribeStream
-                    - dynamodb:GetRecords
-                    - dynamodb:GetShardIterator
-                    - dynamodb:ListStreams
+                    - dynamodb:*
                   Resource:
                     Fn::GetAtt: [DynamoDBTable, StreamArn]
                 - Effect: Allow
@@ -114,7 +111,7 @@ resources:
                     Fn::Sub: 'arn:aws:s3:::${self:custom.s3bucketname}/*'
                 - Effect: Allow
                   Action:
-                    - dynamodb:PutItem
+                    - dynamodb:*
                   Resource:
                     Fn::GetAtt: [DynamoDBTable, Arn]
     ListDynamoDBRole:
