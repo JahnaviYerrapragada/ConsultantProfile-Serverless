@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports.fetch = (event, context, callback) => {
+module.exports.delete = (event, context, callback) => {
 
   const params = {
         TableName: process.env.CANDIDATE_TABLE,

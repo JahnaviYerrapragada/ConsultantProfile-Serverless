@@ -7,7 +7,7 @@ AWS.config.setPromisesDependency(require('bluebird'));
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-module.exports.submit = (event, context, callback) => {
+module.exports.insert = (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
   const fullname = requestBody.fullname;
   const email = requestBody.email;
