@@ -23,7 +23,7 @@ module.exports.getItem = itemId => {
        TableName: Table_Name
    };
     return dynamoDB.get(params).promise().then(result => {
-        return result.item;
+        return result.Item;
     });
 };
 
