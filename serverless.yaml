@@ -2,11 +2,10 @@ service: consultant-profile
 
 provider:
   name: aws
+  profile: default
   region: eu-west-1
-  runtime: nodejs4.3
+  runtime: nodejs8.0
   stage: dev
-  #role:
-  versionFunctions: false
   environment:
     CONSULTANT_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iamRoleStatements:
@@ -16,47 +15,39 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
-      Resource: "*"
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CONSULTANT_TABLE}"
 
 custom:
   s3bucketname: Haedlight-CustomerProfile
 
 functions:
-  saveCandidateProfile:
-    handler: src/saveprofile.update
-    description: Updating existing candidate profile
+  saveItem:
+    handler: handler.saveItem
     events:
       - http:
-          path: update
+          path: item
           method: post
-  createCandidateProfile:
-    handler: src/createprofile.insert
-    description: Creating new candidate profile
+  getItem:
+    handler: handler.getItem
     events:
       - http:
-          path: insert
-          method: put
-  fetchCandidateProfile:
-    handler: src/fetchprofile.fetch
-    description: Fetching existing candidate profile
-    events:
-      - http:
-          path: fetch/{id}
+          path: item/{itemId}
           method: get
-  deleteCandidateProfile:
-    handler: src/deleteprofile.delete
-    description: Deleting candidate profile
+  deleteItem:
+    handler: handler.deleteItem
     events:
       - http:
-          path: delete
+          path: item/{itemId}
           method: delete
-  listallCandidateProfile:
-    handler: src/listprofile.listall
-    description: All candidate profile
+  updateItem:
+    handler: handler.updateItem
     events:
       - http:
-          path: all
-          method: get
+          path: item/{itemId}
+          method: put
+
 resources:
   Resources:
     ConsultantDynamoDbTable:
@@ -65,13 +56,60 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: "id"
-            AttributeType: "S"   
+            AttributeName: "fullname"
+            AttributeType: "S" 
+          -
+            AttributeName: "email"
+            AttributeType: "S"
+          -
+            AttributeName: "experience"
+            AttributeType: "S"
         KeySchema:
           -
-            AttributeName: "id"
+            AttributeName: "fullname"
             KeyType: "HASH"
+
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.CONSULTANT_TABLE}
+
+
+  #  ApiGatewayRestApi:
+  #   Type: AWS::ApiGateway::RestApi
+  #    Properties:
+  #      Name: Consultant Profile
+
+  #  DomainName:
+  #    Type: AWS::ApiGateway::DomainName
+  #    Properties:
+  #      CertificateArn: 
+  #      DomainName: 
+
+  #  BasePathMapping:
+  #    Type: AWS::ApiGateway::BasePathMapping
+  #    Properties:
+        # BasePath: Must be missing for empty path
+  #      DomainName:
+  #        Ref: DomainName
+  #      RestApiId:
+  #        Ref: ApiGatewayRestApi
+  #      Stage: 
+
+    #
+    # Route 53
+    #
+
+  #  Route53Record:
+  #    Type: AWS::Route53::RecordSet
+  #    Properties:
+  #      AliasTarget:
+  #        DNSName:
+  #          "Fn::GetAtt": DomainName.DistributionDomainName
+  #        HostedZoneId:
+  #          "Fn::GetAtt": DomainName.DistributionHostedZoneId
+  #      Comment: Record set for Consultant Profile
+  #      HostedZoneName: 
+  #      Name:
+  #        Ref: DomainName
+  #      Type: A

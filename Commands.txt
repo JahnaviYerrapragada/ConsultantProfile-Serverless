@@ -1,8 +1,4 @@
-npm install -g serverless
-
-serverless --version
-
-
+NPM installation on Amazon Linux:
 
 curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
 
@@ -11,6 +7,16 @@ curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
 sudo yum -y install nodejs
 
 sudo yum install gcc-c++ make
+
+Installing serverless:
+
+npm install -g serverless
+
+serverless --version
+
+Installing uuid:
+
+npm install uuid --save
 
 
 Execution:
