@@ -56,17 +56,12 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: "fullname"
+            AttributeName: "itemId"
             AttributeType: "S" 
-          -
-            AttributeName: "email"
-            AttributeType: "S"
-          -
-            AttributeName: "experience"
-            AttributeType: "S"
+
         KeySchema:
           -
-            AttributeName: "fullname"
+            AttributeName: "itemId"
             KeyType: "HASH"
 
         ProvisionedThroughput:
