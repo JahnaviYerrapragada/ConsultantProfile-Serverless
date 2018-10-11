@@ -1,61 +1,65 @@
 'use strict';
 
+const AWS = require('aws-sdk');
 const uuid = require('uuid');
-const AWS = require('aws-sdk'); 
+const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const tableName = process.env.CONSULTANT_TABLE;
 
-AWS.config.setPromisesDependency(require('bluebird'));
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
-module.exports.update = (event, context, callback) => {
-  const requestBody = JSON.parse(event.body);
-  const fullname = requestBody.fullname;
-  const email = requestBody.email;
-  const experience = requestBody.experience;
-
-  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof experience !== 'number') {
-    console.error('Validation Failed');
-    callback(new Error('Couldn\'t submit candidate because of validation errors.'));
-    return;
-  }
-  submitCandidateP(candidateInfo(fullname, email, experience))
-  .then(res => {
-    callback(null, {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: `Sucessfully submitted candidate with email ${email}`,
-        candidateId: res.id
-      })
-    });
-  })
-  .catch(err => {
-    console.log(err);
-    callback(null, {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: `Unable to submit candidate with email ${email}`
-      })
-    })
-  });
-};
-const submitCandidateP = candidate => {
-    console.log('Submitting candidate');
-    const candidateInfo = {
-      TableName: process.env.CANDIDATE_TABLE,
-      Item: candidate,
-    };
-    return dynamoDb.update(candidateInfo).promise()
-      .then(res => candidate);
-  };
+module.exports.save = (event, context, callback) => {
+  console.log('tot', event, 'tot1')
+  const timestamp = new Date().getTime();
+  const { fullname, email, experience } = event;
   
-  const candidateInfo = (fullname, email, experience) => {
-    const timestamp = new Date().getTime();
-    return {
-      id: uuid.v1(),
-      fullname: fullname,
-      email: email,
-      experience: experience,
-      submittedAt: timestamp,
-      updatedAt: timestamp,
+  let params = {};
+
+  if ( fullname && email && experience ) {
+    
+    params = {
+      TableName: tableName,
+      Key: {
+        fullname
+      },
+      ConditionExpression: 'attribute_exists(fullname)',
+      UpdateExpression: 'set' + Fullname + ' = :v,'+ Email+' =:e,'+ Experience+' = :y',
+      ExpressionAttributeValues: {
+       ':v' : fullname,
+       ':e' : email,
+       ':y' : experience
+      },
+      ReturnValues: 'ALL_NEW'
     };
-  };
+
+  } else {
+    
+    callback(null, {
+      statusCode: 400,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'required params not found, (need: fullname, email & experience)',
+    })
+
+  }
+
+  dynamoDB.update(params, (err) => {
+    
+    if (err) {
+      callback(null, {
+        statusCode: 500,
+        headers: { 'Content-Type': 'text/plain' },
+        body: {
+          msg: 'error',
+          err,
+        },
+      })
+      return;
+    }
+
+    const response ={
+      statusCode: 200,
+      body: JSON.stringify(params.Item),
+    };
+
+    callback(null, response);
+
+  });
+
+}
