@@ -4,7 +4,7 @@ provider:
   name: aws
   profile: default
   region: eu-west-1
-  runtime: nodejs8.0
+  runtime: nodejs8.10
   stage: dev
   environment:
     CONSULTANT_TABLE: ${self:service}-${opt:stage, self:provider.stage}
