@@ -42,8 +42,8 @@ module.exports.updateItem = (event, context, callback) => {
     const itemId = event.pathParameters.itemId;
     const body = JSON.parse(event.body);
     const paramName = body.paramName;
-    const ParamValue = body.paramValue;
-    databaseManager.updateItem(itemId,paramName,ParamValue).then(response =>{
+    const paramValue = body.paramValue;
+    databaseManager.updateItem(itemId,paramName,paramValue).then(response =>{
         console.log(response);
         callback(null, createResponse(200,response));
     });   

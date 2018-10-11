@@ -40,7 +40,7 @@ module.exports.deleteItem = itemId => {
  module.exports.updateItem = (itemId,paramsName,paramsValue) => {
     const params = {
         Key: {
-            itemId: itemId
+            itemId
         },
         TableName: Table_Name,
         ConditionExpression: 'attribute_exists(itemId)',
