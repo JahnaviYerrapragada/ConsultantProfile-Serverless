@@ -20,9 +20,9 @@ module.exports.getItem = itemId => {
        Key: {
            itemId: itemId
        },
-       TableName: TABLE_NAME
+       TableName: Table_Name
    };
-    return dynamoDB.get(params).promise().then(() => {
+    return dynamoDB.get(params).promise().then(result => {
         return result.item;
     });
 };
@@ -32,7 +32,7 @@ module.exports.deleteItem = itemId => {
         Key: {
             itemId: itemId
         },
-        TableName: TABLE_NAME
+        TableName: Table_Name
     };
      return dynamoDB.delete(params).promise();
  };
@@ -42,7 +42,7 @@ module.exports.deleteItem = itemId => {
         Key: {
             itemId: itemId
         },
-        TableName: TABLE_NAME,
+        TableName: Table_Name,
         ConditionExpression: 'attribute_exists(itemId)',
         UpdateExpression: 'set ' + paramsName + ' = :v',
         ExpressionAttributeValues: {
@@ -50,7 +50,7 @@ module.exports.deleteItem = itemId => {
         },
         ReturnValues: 'ALL_NEW'
     };
-     return dynamoDB.update(params).promise().then(() => {
+     return dynamoDB.update(params).promise().then(response => {
         return response.Attributes;
     });
  };
