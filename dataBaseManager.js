@@ -38,6 +38,8 @@ module.exports.deleteItem = itemId => {
  };
 
  module.exports.updateItem = (itemId,paramsName,paramsValue) => {
+   const timestamp = new Date().getTime();
+   
     const params = {
         Key: {
             itemId
@@ -50,7 +52,16 @@ module.exports.deleteItem = itemId => {
         },
         ReturnValues: 'ALL_NEW'
     };
-     return dynamoDB.update(params).promise().then(response => {
-        return response.Attributes;
+     return dynamoDB.update(params, (error, result) => {
+         if(error){
+             console.error(error);
+             callback(new Error('Couldn\'t update the item'));
+             return;
+         }
+
+         const response = {
+             body : JSON.stringify(result.Item)
+         }
+        return response;
     });
  };
