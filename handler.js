@@ -41,9 +41,9 @@ module.exports.deleteItem = (event, context, callback) => {
 module.exports.updateItem = (event, context, callback) => {
     const itemId = event.pathParameters.itemId;
     const body = JSON.parse(event.body);
-    const paramsName = body.paramName;
-    const paramsValue = body.paramValue;
-    databaseManager.updateItem(itemId,paramsName,paramsValue).then(response =>{
+    const paramName = body.paramName;
+    const paramValue = body.paramValue;
+    databaseManager.updateItem(itemId,paramName,paramValue).then(response =>{
         console.log(response);
         callback(null, createResponse(200,response));
     });   

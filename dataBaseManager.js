@@ -54,14 +54,25 @@ module.exports.deleteItem = itemId => {
     };
      return dynamoDB.update(params, (error, result) => {
          if(error){
-             console.error(error);
-             callback(new Error('Couldn\'t update the item'));
-             return;
-         }
+            console.error("***************************************"+error);
+            const response = {
+                "statusCode":200,
+                 "headers":{
+                  "some-header":"some header value"
+                            },
+                "body":"{\"ErrorMessage\":\"Failed to update\"}"
+               };
+            return response;
+        }
+         
 
-         const response = {
-             body : JSON.stringify(result.Item)
-         }
-        return response;
+        const response = {
+            "statusCode":200,
+             "headers":{
+              "some-header":"some header value"
+                        },
+            "body": JSON.stringify(result.Item)
+           };
+   return response;
     });
  };
