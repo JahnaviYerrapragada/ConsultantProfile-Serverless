@@ -37,7 +37,8 @@ module.exports.deleteItem = itemId => {
      return dynamoDB.delete(params).promise();
  };
 
- module.exports.updateItem = (itemId,paramsName,paramsValue) => {
+ 
+ module.exports.updateItem = (itemId,paramName,paramValue) => {
   
     const params = {
         Key: {
@@ -51,27 +52,7 @@ module.exports.deleteItem = itemId => {
         },
         ReturnValues: 'ALL_NEW'
     };
-    return dynamoDB.update(params, (error, result) => {
-         if(error){
-            console.error("***************************************"+error);
-            const response = {
-                "statusCode":200,
-                 "headers":{
-                  "some-header":"some header value"
-                            },
-                "body":"{\"ErrorMessage\":\"Failed to update\"}"
-               };
-            return response;
-        }
-         
-
-        const response = {
-            "statusCode":200,
-             "headers":{
-              "some-header":"some header value"
-                        },
-            "body": JSON.stringify(result.Item)
-           };
-   return response;
-    }).promise();
+    return dynamoDB.update(params).promise().then(response =>{
+        return response.Attributes;
+    });
  };
