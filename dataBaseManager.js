@@ -1,17 +1,15 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const uuid = require('uuid');
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 const Table_Name = process.env.CONSULTANT_TABLE;
 
-module.exports.saveItem = async(item) => {
+module.exports.saveItem = item => {
     const params ={
         TableName: Table_Name,
         Item: item
     };
-    return await dynamoDB.put(params)
-    .then(() => {
+    return dynamoDB.put(params).promise().then(() => {
         return item.itemId;
     });
 };
@@ -40,7 +38,7 @@ module.exports.deleteItem = async(itemId) => {
  };
 
  
- module.exports.updateItem = (itemId,paramName,paramValue) => {
+ module.exports.updateItem =async (itemId,paramName,paramValue) => {
   
     const params = {
         Key: {
@@ -55,7 +53,7 @@ module.exports.deleteItem = async(itemId) => {
         ReturnValues: 'ALL_NEW'
     };
     return dynamoDB.update(params)
-       .then(response =>{
+    .then(response =>{
         return response.Attributes;
     });
  };
