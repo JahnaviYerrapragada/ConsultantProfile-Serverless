@@ -23,9 +23,10 @@ function createErrorResponse(statusCode , data, error,message){
 }
 
 module.exports.saveItem = async(event, context) => {
-    event.itemId = uuidv1();
+    const body = JSON.parse(event.body);
+    body.itemId = uuidv1();
     try{
-        const response = await databaseManager.saveItem(event);
+        const response = await databaseManager.saveItem(body);
         return createResponse(200,response);
     }  catch (error){
         return createErrorResponse(400,event,error,"Unable to save the Item");
@@ -38,7 +39,7 @@ module.exports.getItem = async(event, context) => {
       const response = await  databaseManager.getItem(itemId);
       return createResponse(200,response);
     } catch(error){
-       return createErrorResponse(400,itemId,error,"Unable to Fetch the Item");
+      return createErrorResponse(400,itemId,error,"Unable to Fetch the Item");
     }  
 };
 
