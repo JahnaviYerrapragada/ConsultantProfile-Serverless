@@ -1,13 +1,16 @@
-'use Strict'
+'use Strict';
 
 const databaseManager = require('./dataBaseManager');
 const uuidv1 = require('uuid/v1');
 
+
 function createResponse(statusCode , message){
+   console.log("in response");
     return{
         statusCode: statusCode,
         body: JSON.stringify(message)
     };
+
 }
 
 function createErrorResponse(statusCode , data, error,message){
@@ -19,38 +22,40 @@ function createErrorResponse(statusCode , data, error,message){
     };
 }
 
-module.exports.saveItem = async (event, context) => {
-    const item = JSON.parse(event.body);
-    item.itemId = uuidv1();
+module.exports.saveItem = async(event, context) => {
+    event.itemId = uuidv1();
+    console.log("HHHHHHHHHHHHHH   "+JSON.stringify(event));
     try{
-        const response = await databaseManager.saveItem(item);
-        createResponse(200,response);
+        const response = await databaseManager.saveItem(event);
+        console.log("item...."+response);
+        return createResponse(200,response);
     }  catch (error){
-        createResponse(400,item,error,"Unable to save the Item");
+        return createErrorResponse(400,event,error,"Unable to save the Item");
     } 
 };
 
-module.exports.getItem = async (event, context) => {
+module.exports.getItem = async(event, context) => {
     const itemId = event.pathParameters.itemId;
     try{
       const response = await  databaseManager.getItem(itemId);
-      createResponse(200,response);
+      console.log("FFFFFFFFFF ......."+response);
+      return createResponse(200,response);
     } catch(error){
-       createResponse(400,item,error,"Unable to Fetch the Item");
+       return createErrorResponse(400,itemId,error,"Unable to Fetch the Item");
     }  
 };
 
-module.exports.deleteItem = (event, context) => {
+module.exports.deleteItem = async(event, context) => {
     const itemId = event.pathParameters.itemId;
     try {
         const response = await databaseManager.deleteItem(itemId);
         createResponse(200,response);
     }catch(error){
-        createResponse(400,item,error,"Delete Item Failed");
+        createErrorResponse(400,itemId,error,"Delete Item Failed");
     } 
 };
 
-module.exports.updateItem = (event, context) => {
+module.exports.updateItem = async(event, context) => {
     const itemId = event.pathParameters.itemId;
     const body = JSON.parse(event.body);
     const paramName = body.paramName;
@@ -59,6 +64,6 @@ module.exports.updateItem = (event, context) => {
           const response = await databaseManager.updateItem(itemId,paramName,paramValue);
           createResponse(200,response);
    }catch(error){
-          createResponse(400,item,error,"Unable to update the Item");
-   }s   
+          createErrorResponse(400,body,error,"Unable to update the Item");
+   }
 };
