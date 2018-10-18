@@ -5,36 +5,38 @@ const uuid = require('uuid');
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 const Table_Name = process.env.CONSULTANT_TABLE;
 
-module.exports.saveItem = item => {
+module.exports.saveItem = async(item) => {
     const params ={
         TableName: Table_Name,
         Item: item
     };
-    return dynamoDB.put(params).promise().then(() => {
+    return await dynamoDB.put(params)
+    .then(() => {
         return item.itemId;
     });
 };
 
-module.exports.getItem = itemId => {
+module.exports.getItem = async(itemId) => {
    const params = {
        Key: {
            itemId: itemId
        },
        TableName: Table_Name
    };
-    return dynamoDB.get(params).promise().then(result => {
+    return await dynamoDB.get(params)
+    .then(result => {
         return result.Item;
     });
 };
 
-module.exports.deleteItem = itemId => {
+module.exports.deleteItem = async(itemId) => {
     const params = {
         Key: {
             itemId: itemId
         },
         TableName: Table_Name
     };
-     return dynamoDB.delete(params).promise();
+     return await dynamoDB.delete(params);
  };
 
  
@@ -46,13 +48,14 @@ module.exports.deleteItem = itemId => {
         },
         TableName: Table_Name,
         ConditionExpression: 'attribute_exists(itemId)',
-        UpdateExpression: 'set ' + paramsName + ' = :v',
+        UpdateExpression: 'set ' + paramName + ' = :v',
         ExpressionAttributeValues: {
-            ':v': paramsValue
+            ':v': paramValue
         },
         ReturnValues: 'ALL_NEW'
     };
-    return dynamoDB.update(params).promise().then(response =>{
+    return dynamoDB.update(params)
+       .then(response =>{
         return response.Attributes;
     });
  };
