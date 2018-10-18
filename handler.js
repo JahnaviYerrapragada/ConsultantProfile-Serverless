@@ -24,10 +24,8 @@ function createErrorResponse(statusCode , data, error,message){
 
 module.exports.saveItem = async(event, context) => {
     event.itemId = uuidv1();
-    console.log("HHHHHHHHHHHHHH   "+JSON.stringify(event));
     try{
         const response = await databaseManager.saveItem(event);
-        console.log("item...."+response);
         return createResponse(200,response);
     }  catch (error){
         return createErrorResponse(400,event,error,"Unable to save the Item");
@@ -38,7 +36,6 @@ module.exports.getItem = async(event, context) => {
     const itemId = event.pathParameters.itemId;
     try{
       const response = await  databaseManager.getItem(itemId);
-      console.log("FFFFFFFFFF ......."+response);
       return createResponse(200,response);
     } catch(error){
        return createErrorResponse(400,itemId,error,"Unable to Fetch the Item");
@@ -48,10 +45,10 @@ module.exports.getItem = async(event, context) => {
 module.exports.deleteItem = async(event, context) => {
     const itemId = event.pathParameters.itemId;
     try {
-        const response = await databaseManager.deleteItem(itemId);
-        createResponse(200,response);
+      const response = await databaseManager.deleteItem(itemId);
+      return createResponse(200,"Deleted the record with ItemId: "+itemId);
     }catch(error){
-        createErrorResponse(400,itemId,error,"Delete Item Failed");
+      return createErrorResponse(400,itemId,error,"Delete Item Failed");
     } 
 };
 
@@ -61,9 +58,9 @@ module.exports.updateItem = async(event, context) => {
     const paramName = body.paramName;
     const paramValue = body.paramValue;
    try{
-          const response = await databaseManager.updateItem(itemId,paramName,paramValue);
-          createResponse(200,response);
+     const response = await databaseManager.updateItem(itemId,paramName,paramValue);
+     return createResponse(200,response);
    }catch(error){
-          createErrorResponse(400,body,error,"Unable to update the Item");
+     return createErrorResponse(400,body,error,"Unable to update the Item");
    }
 };

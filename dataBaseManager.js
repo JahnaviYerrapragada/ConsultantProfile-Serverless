@@ -15,17 +15,17 @@ module.exports.saveItem = item => {
 };
 
 module.exports.getItem = async(itemId) => {
-   const params = {
-       Key: {
-           itemId: itemId
-       },
-       TableName: Table_Name
-   };
-    return await dynamoDB.get(params)
-    .then(result => {
-        return result.Item;
-    });
-};
+    const params = {
+        Key: {
+            itemId: itemId
+        },
+        TableName: Table_Name
+    };
+     return await dynamoDB.get(params).promise()
+     .then(result => {
+         return result.Item;
+     });
+ };
 
 module.exports.deleteItem = async(itemId) => {
     const params = {
@@ -34,7 +34,7 @@ module.exports.deleteItem = async(itemId) => {
         },
         TableName: Table_Name
     };
-     return await dynamoDB.delete(params);
+     return await dynamoDB.delete(params).promise();
  };
 
  
@@ -52,7 +52,7 @@ module.exports.deleteItem = async(itemId) => {
         },
         ReturnValues: 'ALL_NEW'
     };
-    return dynamoDB.update(params)
+    return dynamoDB.update(params).promise()
     .then(response =>{
         return response.Attributes;
     });
