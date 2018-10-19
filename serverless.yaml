@@ -24,24 +24,28 @@ custom:
 
 functions:
   saveItem:
+    name: tenant-service-hello-${self:custom.vars.envId}
     handler: handler.saveItem
     events:
       - http:
           path: item
           method: post
   getItem:
+    name: tenant-service-hello-${self:custom.vars.envId}
     handler: handler.getItem
     events:
       - http:
           path: item/{itemId}
           method: get
   deleteItem:
+    name: tenant-service-hello-${self:custom.vars.envId}
     handler: handler.deleteItem
     events:
       - http:
           path: item/{itemId}
           method: delete
   updateItem:
+    name: tenant-service-hello-${self:custom.vars.envId}
     handler: handler.updateItem
     events:
       - http:
@@ -50,6 +54,12 @@ functions:
 
 resources:
   Resources:
+  
+    ApiGatewayRestApi:
+     Type: AWS::ApiGateway::RestApi
+     Properties:
+     Name: Consultant Profile ${self:provider.stage}
+     
     ConsultantDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       #DeletionPolicy: Retain
